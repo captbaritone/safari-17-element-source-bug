@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>AudioContext Bug</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <button id="play">Play</button>
+    <p>
+      Pressing play on Safari 16 on iOS plays the audio. On Safari 17 on iOS the
+      audio does not play.
+    </p>
+    <script>
+      let started = false;
+      const button = document.getElementById("play");
+      button.addEventListener("click", (e) => {
+        if (started) {
+          alert("Already started");
+          return;
+        }
+        started = true;
+
+        // Purposefully create context in event handler to ensure
+        // it is created in response to a user gesture.
+        // https://html.spec.whatwg.org/#activation-triggering-input-event
+        const audioContext = new window.AudioContext();
+
+        const audio = document.createElement("audio");
+
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(audioContext.destination);
+
+        audio.src = "./audio.mp3";
+        audio.play().catch((e) => {
+          // Ensure errors thrown are seen by client
+          alert(e.message);
+        });
+      });
+    </script>
+  </body>
+</html>
